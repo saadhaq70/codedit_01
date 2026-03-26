@@ -1,0 +1,43 @@
+import { Sidebar, SidebarProvider } from "@/components/ui/sidebar";
+import { TooltipProvider } from "@/components/ui/tooltip"; // Import TooltipProvider
+import { getAllPlaygroundForUser } from "@/modules/dashboard/action";
+import { DashboardSidebar } from "@/modules/dashboard/components/dashboard-sidebar";
+
+export default async function DashboardLayout({
+    children
+}: {
+    children: React.ReactNode
+}) {
+    const playgroundData = await getAllPlaygroundForUser();
+
+    console.log("playgroundData", playgroundData);
+
+    const technologyIconMap: Record<string, string> = {
+        REACT: "Zap",
+        NEXTJS: "Lightbulb",
+        EXPRESS: "Database",
+        VUE: "Compass",
+        HONO: "FlameIcon",
+        ANGULAR: "Terminal",
+    }
+
+    const formattedPlaygroundData = playgroundData?.map((item) => ({
+        id: item.id,
+        name: item.title,
+        starred: false,
+        icon: technologyIconMap[item.template] || "Code",
+    })) || [];
+
+    return (
+        <TooltipProvider> {/* Add TooltipProvider here */}
+            <SidebarProvider>
+                <div className="flex min-h-screen w-full overflow-x-hidden">
+                    <DashboardSidebar initialPlaygroundData={formattedPlaygroundData} />
+                    <main className="flex-1">
+                        {children}
+                    </main>
+                </div>
+            </SidebarProvider>
+        </TooltipProvider>
+    );
+}
